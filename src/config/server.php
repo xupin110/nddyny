@@ -28,7 +28,7 @@ $config['server']['set'] = [
     'max_connection' => 100000
 ];
 //协程超时时间
-$config['coroution']['timerOut'] = 5000;
+$config['coroution']['timerOut'] = config_get('coroution.timerOut');
 
 //是否启用自动reload
 $config['auto_reload_enable'] = config_get('auto_reload_enable');

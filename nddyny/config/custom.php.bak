@@ -13,6 +13,7 @@ $custom['auto_reload_enable'] = true;
 // 进程数量
 $custom['server.set.worker_num'] = 10;
 $custom['server.set.task_worker_num'] = 0;
+$custom['coroution.timerOut'] = 15000;
 
 // mysql
 $custom['mysql.asyn_max_count'] = 10;
