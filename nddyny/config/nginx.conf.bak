@@ -1,0 +1,78 @@
+upstream api-nddyny-up {
+    server 172.19.170.120:37090;
+    server 172.19.199.192:37090;
+}
+
+upstream ws-nddyny-up {
+    server 172.19.170.120:37090;
+    server 172.19.199.192:37090;
+}
+
+upstream backend-nddyny-up {
+    server 172.19.170.120:37092;
+    server 172.19.199.192:37092;
+}
+
+server {
+    listen 80;
+    server_name api.nddyny.com;
+    rewrite ^(.+)/$ $1 permanent;
+
+    location / {
+        proxy_pass http://api-nddyny-up/ControllersApi/;
+    }
+
+    location /favicon.ico {
+        root /nddyny/apps/nddyny/;
+    }
+}
+
+server {
+    listen 80;
+    server_name backend.api.nddyny.com;
+
+    location / {
+        proxy_pass http://api-nddyny-up/ControllersApiBackend/;
+    }
+
+    location /favicon.ico {
+        root /nddyny/apps/nddyny/;
+    }
+}
+
+server {
+    listen 80;
+    server_name www.nddyny.com;
+    rewrite ^(.+)/$ $1 permanent;
+
+    location /backendApi/ {
+        proxy_pass http://api-nddyny-up/ControllersApiBackend/;
+    }
+
+    location /websocket {
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_read_timeout 120s;
+        proxy_http_version 1.1;
+        proxy_pass http://ws-nddyny-up/;
+    }
+
+    location / {
+        proxy_pass http://backend-nddyny-up/;
+    }
+
+    location /favicon.ico {
+        root /nddyny/apps/nddyny/;
+    }
+}
+
+server {
+    listen 37092;
+    server_name www.nddyny.com;
+
+    location / {
+        root /nddyny/apps/nddyny-backend/dist/;
+        index index.html;
+        try_files $uri /index.html;
+    }
+}

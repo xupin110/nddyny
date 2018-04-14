@@ -1,0 +1,15 @@
+src/_home_SwooleDistributed_start_swoole_dispatch.php.pid
+*.pid
+*.log
+vendor
+.idea
+.vscode
+*.lock
+
+src/bin/exec/consul.d/consul_config.json
+src/bin/bladeCache
+src/bin/cache
+
+nddyny/config/common.php
+nddyny/config/custom.php
+nddyny/config/nginx.conf

@@ -1,0 +1,22 @@
+<?php
+// 正式环境可以注释掉
+// define('DEV', true);
+
+$config['http.port'] = '37090';
+$config['tcp.port'] = '37091';
+
+// 可自定义创建进程的最大数量
+$config['process.amount'] = 5;
+
+// 本机IP - 需要和“servers”配置中的其中一个ip的值一样
+// $ip = current(swoole_get_local_ip());
+$ip = '127.0.0.1';
+$config['swoole.ip'] = $ip;
+
+// 可用的服务器信息
+$config['servers'] = [
+    'IP在Web页面显示的内容' => [
+        'ip' => $ip
+    ]
+];
+return $config;

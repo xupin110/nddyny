@@ -1,0 +1,27 @@
+{
+  "require": {
+    "facebook/webdriver": "@stable",
+    "ramsey/uuid": "@stable"
+  },
+  "autoload": {
+    "psr-4": {
+      "nddyny\\": "../nddyny",
+      "app\\Controllers\\nddyny\\": "../app",
+      "app\\Models\\nddyny\\": "../app/Models",
+      "app\\Tasks\\nddyny\\": "../app/Tasks",
+      "app\\Route\\nddyny\\": "../app/Route"
+    },
+    "files": [
+      "../core/function.php",
+      "../core/parameter.php",
+      "../core/Config.php",
+      "../core/Result.php"
+    ]
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  }
+}

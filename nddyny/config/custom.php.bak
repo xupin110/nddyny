@@ -1,0 +1,45 @@
+<?php
+/**
+ * 这个是可选的配置文件，
+ * 我是把我需要修改的sd框架原来的配置提出来在配一次，
+ * 这样方便部署，sd本身是可以分环境配置的，我没用。
+ *
+ * 如果需要用到我提出来的配置，可以把“.”换成“']['”来搜索sd的配置，
+ * 比如“cluster.port”就用“cluster']['port”搜索，然后把sd原来的值改成config_get('cluster.port')
+ */
+//是否启用自动reload
+$custom['auto_reload_enable'] = true;
+
+// 进程数量
+$custom['server.set.worker_num'] = 10;
+$custom['server.set.task_worker_num'] = 0;
+
+// mysql
+$custom['mysql.asyn_max_count'] = 10;
+$custom['mysql.host'] = '127.0.0.1';
+$custom['mysql.port'] = 3306;
+$custom['mysql.user'] = 'root';
+$custom['mysql.password'] = '';
+$custom['mysql.database'] = 'nddyny';
+
+// redis
+$custom['redis.asyn_max_count'] = 10;
+$custom['redis.ip'] = '127.0.0.1';
+$custom['redis.port'] = 6379;
+$custom['redis.select'] = 0;
+$custom['redis.password'] = '';
+
+//是否启用consul
+$custom['consul.enable'] = false;
+$custom['consul.datacenter'] = 'nddyny-datacenter';
+$custom['consul.leader_service_name'] = 'nddyny-service';
+$custom['consul.start_join'] = [];
+$custom['consul.bind_addr'] = config_get('swoole.ip');
+
+// TCP集群端口
+$custom['cluster.port'] = 37999;
+
+// 其它
+$custom['allow_ServerController'] = true;
+
+return $custom;
