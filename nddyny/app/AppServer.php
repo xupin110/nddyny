@@ -60,6 +60,7 @@ abstract class AppServer extends SwooleDistributedServer
         $this->process_table->column('name', \swoole_table::TYPE_STRING, 255);
         $this->process_table->column('pid', \swoole_table::TYPE_INT, 8);
         $this->process_table->column('exit_loop', \swoole_table::TYPE_STRING, 1);
+        $this->process_table->column('input', \swoole_table::TYPE_STRING, 255);
         $this->process_table->create();
         $this->process_not_use_table = new \swoole_table(1024);
         $this->process_not_use_table->create();
@@ -85,7 +86,6 @@ abstract class AppServer extends SwooleDistributedServer
         $this->process_not_use_lock->unlock();
         try {
             foreach($keys as $key) {
-                $Process->key = $key;
                 ProcessManager::getInstance()->getRpcCall(ManageProcess::class . $key, true)->run($Process);
             }
             return $keys;

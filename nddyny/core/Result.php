@@ -43,7 +43,7 @@ class R extends ResultCode
         if ($message == null && is_numeric($code) && isset(self::$code_messages[$code])) {
             $message = self::$code_messages[$code];
         }
-        if ($status != R::SUCCESS && $code == null && $message == null) {
+        if ($status != R::SUCCESS && $message == null) {
             $message = $result;
             $result = null;
         }

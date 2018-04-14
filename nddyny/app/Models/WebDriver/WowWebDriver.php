@@ -250,6 +250,6 @@ class WowWebDriver extends ModelWebdriver
 
     protected function getCookieRedisKey()
     {
-        return 'test.test.test';
+        return 'webdriver.wow';
     }
 }

@@ -40,7 +40,7 @@ abstract class ModelWebdriver extends Model
 
     protected function phantomjs($enabledImg = true, $enabledJs = true)
     {
-        $this->process->renderGroup(R::none('初始化浏览器'));
+        $this->process->renderGroup(R::none('配置phantomjs浏览器'));
         $Capability = DesiredCapabilities::phantomjs();
         $Capability->setCapability('phantomjs.binary.path', EXTRA_DIR . '/webdriver/phantomjs');
         $Capability->setCapability('phantomjs.page.customHeaders.Accept-Language', 'zh-CN,zh;q=0.8');
@@ -48,7 +48,9 @@ abstract class ModelWebdriver extends Model
         $Capability->setCapability('phantomjs.page.settings.loadImages', $enabledImg);
         $Capability->setCapability('phantomjs.page.settings.javascriptEnabled', $enabledJs);
         $Capability->setCapability('phantomjs.cli.args', ['--ssl-protocol=any', '--ignore-ssl-errors=true']);
+        $this->process->renderGroup(R::none('准备启动打开浏览器'));
         $this->driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $Capability);
+        $this->process->renderGroup(R::none('打开成功'));
     }
 
     protected function baseLogin($login_url, $home_url, $actionLogin, $checkLogin)
@@ -56,7 +58,7 @@ abstract class ModelWebdriver extends Model
         if (R::isSuccess($this->setCookies()) !== R::FALSE) {
             $this->process->renderGroup(R::none('进入首页'));
             $this->driver->get($home_url);
-            $this->process->renderGroup(R::none('开始验证登录状态'));
+            $this->process->renderGroup(R::none('验证登录状态'));
             if (!R::noSuccess($Result = $checkLogin())) {
                 $this->process->renderGroup(R::success('登录成功'));
                 return $Result;
@@ -64,79 +66,70 @@ abstract class ModelWebdriver extends Model
             $this->process->renderGroup(R::fail('未登录状态'));
             $this->redis_pool->getCoroutine()->del($this->getCookieRedisKey());
         }
-        $this->process->renderGroup(R::none('开始登录'));
+        $this->process->renderGroup(R::none('登录'));
         $this->driver->get($login_url);
         if (R::noSuccess($Result = $actionLogin())) {
             return $Result;
         }
-        $this->process->renderGroup(R::none('开始验证登录状态'));
+        $this->process->renderGroup(R::none('验证登录状态'));
         if (R::noSuccess($Result = $checkLogin())) {
-            $this->process->renderGroup(R::error('登录失败'));
+            $this->process->renderGroup(R::fail('登录失败'));
             return $Result;
         }
         $this->addCookies();
         return R::success();
     }
 
-    protected function takeScreenshot($screenshot, $by = null, $by2 = null)
+    protected function takeScreenshot($by = null)
     {
-        if (!isset($by) && isset($by2)) {
-            $this->waitVisibility($by2);
-        }
-        $this->process->renderGroup(R::none('开始截图并保存'));
-        $this->driver->takeScreenshot($screenshot);
-        if (!file_exists($screenshot)) {
-            return R::fail('图片保存失败');
-        }
-        $this->process->renderGroup(R::none('成功保存图片'));
+        $this->process->renderGroup(R::none('截图并保存'));
+        $screenshot = $this->driver->takeScreenshot();
+        $this->process->renderGroup(R::none('成功获取图片'));
         if (!isset($by)) {
             return R::success($screenshot);
         }
         try {
-            $this->waitVisibility($by2 ?? $by);
+            $this->process->renderGroup(R::none('调整图片大小'));
+            $this->waitVisibility($by);
             $element = $this->findElement($by);
         } catch (\Exception $e) {
-            return R::fail(['screenshot' => $screenshot], '找不到指定元素截图');
+            $this->process->renderGroup(R::fail('定位不到指定区域'));
+            return R::success($screenshot);
         }
-        $this->process->renderGroup(R::none('开始调整图片大小'));
-        $element_screenshot = $screenshot; // 设置小图的路径
         $element_width = $element->getSize()->getWidth();
         $element_height = $element->getSize()->getHeight();
         $element_src_x = $element->getLocation()->getX();
         $element_src_y = $element->getLocation()->getY();
-        $src = imagecreatefrompng($screenshot);
+        $src = imagecreatefromstring($screenshot);
         $dest = imagecreatetruecolor($element_width, $element_height);
         imagecopy($dest, $src, 0, 0, $element_src_x, $element_src_y, $element_width, $element_height);
-        imagepng($dest, $element_screenshot);
-        // unlink($screenshot);
-        if (!file_exists($element_screenshot)) {
-            return R::fail('图片保存失败');
-        }
-        $this->process->renderGroup(R::none('成功调整图片大小并保存'));
-        return R::success($element_screenshot);
+        $this->process->renderGroup(R::none('成功调整图片大小'));
+        ob_start();
+        imagepng($dest);
+        $img = ob_get_contents();
+        ob_end_clean();
+        imagedestroy($src);
+        imagedestroy($dest);
+        $str = base64_encode($img);
+        $this->process->renderGroup(R::none($str, $this->process::CODE_BASE64));
+        return R::success();
     }
 
-    protected function input($name)
+    protected function input()
     {
-        if (!$this->process->IM->isOnline()) {
-            return R::fail('启动输入' . $name . '的用户不在线');
-        }
-        $input_id = uuid();
-        $this->process->IM->send(R::none(['input_id' => $input_id], IM::WAIT_INPUT, '请输入' . $name));
         $i = 0;
-        while (!($input = $this->process->IM->getInput($input_id))) {
-            if ($i++ == 20) {
+        $this->process->delInput();
+        $this->process->renderGroup(R::none('等待输入', $this->process::CODE_INPUT_SHOW), false);
+        while (empty($input = $this->process->getInput())) {
+            if ($i++ == 60) {
                 return R::fail('长时间未输入，关闭进程');
             }
-            if ('input' == '`close`') {
-                return R::fail('已取消输入，关闭进程');
-            }
-            $this->process->renderGroup(R::none('等待输入' . $name));
-            sleep(3);
+            $this->process->renderGroup(R::none('.'), false);
+            sleep(1);
             continue;
         }
-        $this->process->renderGroup(R::none('已得到输入内容'));
-        return R::success($input);
+        $this->process->renderGroup(R::none(PHP_EOL . '得到输入内容: ' . $input, $this->process::CODE_INPUT_HIDE));
+        return R::success();
     }
 
     protected function setCookies()

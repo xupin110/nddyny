@@ -17,6 +17,8 @@ class Process
 
     const SERVICE_CLOSE = 'close';
 
+    const SERVICE_INPUT = 'input';
+
     const TASK_NORMAL = 'normal';
 
     const TASK_STATUS_NORMAL = 'normal';
@@ -26,6 +28,12 @@ class Process
     const TASK_ACTION_CREATE = 'create';
 
     const TASK_ACTION_CLOSE = 'close';
+
+    const CODE_BASE64 = 'base64';
+
+    const CODE_INPUT_SHOW = 'input_show';
+
+    const CODE_INPUT_HIDE = 'input_hide';
 
     public $current_task_type = 'normal';
 
@@ -82,7 +90,7 @@ class Process
     {
         $Result->destroy = $destroy;
         $Result->attach = $this->IM->attach;
-        $Result->attach['process_key'] = $this->key;
+        $Result->attach['process_id'] = $this->process_id;
         return $Result;
     }
 
@@ -90,6 +98,7 @@ class Process
     {
         $run_times = 0;
         while (true) {
+            print_r([$this->key, $this->process_id]);
             if (++$run_times > $max_run_times) {
                 break;
             }
@@ -101,5 +110,22 @@ class Process
             }
         }
         return R::success();
+    }
+
+    public function delInput() {
+        get_instance()->process_table->set($this->process_id, [
+            'input' => ''
+        ]);
+    }
+
+    public function getInput() {
+        $value = get_instance()->process_table->get($this->process_id, 'input');
+        return $value;
+    }
+
+    public function setInput($value) {
+        get_instance()->process_table->set($this->process_id, [
+            'input' => $value
+        ]);
     }
 }

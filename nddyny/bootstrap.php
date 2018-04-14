@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
+define("EXTRA_DIR", __DIR__ . '/../../nddyny-extra');
 define('_THIS', '$_this');
 define('NO_FOUND', 'noFound');
 define('IS_TRUE', '1');

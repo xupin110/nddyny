@@ -31,10 +31,10 @@ class LocalProcessModel extends Model
     {
         $process_amount = param_uint($Process->params, 'process_amount', false, 1);
         $type = param_int($Process->params, 'type', true);
-        $process_key = param_string($Process->params, 'process_key', false, null);
+        $process_id = param_string($Process->params, 'process_id', false, null);
         $i = 0;
         foreach (get_instance()->getProcessList($Process->process_name) as $key => $info) {
-            if(isset($process_key) && $process_key != $key) {
+            if(isset($process_id) && $process_id != $key) {
                 continue;
             }
             if (++ $i > $process_amount) {
@@ -43,7 +43,6 @@ class LocalProcessModel extends Model
             $pid = $info['pid'];
             if ($type == SIGKILL) {
                 get_instance()->stopProcess9($pid);
-                $Process->key = $key;
                 $Process->renderGroup(R::success(R::SUCCESS, Process::TASK_ACTION_CLOSE), true, true);
                 continue;
             }
@@ -51,6 +50,14 @@ class LocalProcessModel extends Model
                 'exit_loop' => IS_TRUE
             ]);
         }
+        return R::success();
+    }
+
+    public function input(Process $Process) {
+        $value = param_string($Process->params, 'value', true);
+        $process_id = param_int($Process->params, 'process_id', true);
+        $Process->process_id = $process_id;
+        $Process->setInput($value);
         return R::success();
     }
 }

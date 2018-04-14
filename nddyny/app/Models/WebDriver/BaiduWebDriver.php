@@ -3,50 +3,42 @@
 namespace app\Models\nddyny\WebDriver;
 
 use R;
-use app\Controllers\nddyny\Common\IM;
 use app\Controllers\nddyny\Common\ModelWebdriver;
+use app\Controllers\nddyny\Common\Process;
 
 class BaiduWebDriver extends ModelWebdriver
 {
-
-    private $username = '';
-
-    private $password = '';
 
     private $login_url = 'https://passport.baidu.com/v2/?login';
 
     private $home_url = 'https://passport.baidu.com/center';
 
-    public function index(IM $im)
+    public function index(Process $Process)
     {
-        $this->init($im);
+        $this->init($Process);
         $this->phantomjs(true, true);
         if (R::noSuccess($Result = $this->login())) {
             return $Result;
         }
-        $title = $this->driver->getTitle();
-        $url = $this->driver->getCurrentURL();
-        return R::success([
-            $title, $url
-        ]);
+        return R::success();
     }
 
     private function login()
     {
         $driver = $this->driver;
         return $this->baseLogin($this->login_url, $this->home_url, function () use ($driver) {
-            $this->waitVisibility('#TANGRAM__PSP_3__userName');
-            $this->findElement('#TANGRAM__PSP_3__userName')->sendKeys($this->username);
-            $this->waitVisibility('#TANGRAM__PSP_3__password');
-            $this->findElement('#TANGRAM__PSP_3__password')->sendKeys($this->password);
-            $this->findElement('#TANGRAM__PSP_3__submit')->click();
-            sleep(5);
-            $this->takeScreenshot('/nddyny/1.png');
+            if(R::noSuccess($Result = $this->takeScreenshot('#TANGRAM__PSP_3__qrcode'))) {
+                return $Result;
+            }
+            $this->process->renderGroup(R::none('请扫码，然后随便输个东西'));
+            if(R::noSuccess($Result = $this->input())) {
+                return $Result;
+            }
             return R::success();
         }, function () use ($driver) {
-            if (($currentUrl = $driver->getCurrentURL()) != $this->home_url) {
-                $this->render(R::none("当前地址: $currentUrl, 期望地址: $this->home_url"));
-                return R::fail();
+            $currentUrl = substr($driver->getCurrentURL(), 0, strlen($this->home_url));
+            if ($currentUrl != $this->home_url) {
+                return R::fail("当前地址: $currentUrl, 期望地址: $this->home_url");
             }
             return R::success();
         });
@@ -54,16 +46,6 @@ class BaiduWebDriver extends ModelWebdriver
 
     protected function getCookieRedisKey()
     {
-        return 'test.test.test';
-    }
-
-    protected function render($data)
-    {
-        $this->im->send($data);
-    }
-
-    protected function renderUid($data)
-    {
-        $this->im->send($data);
+        return 'webdriver.baidu3';
     }
 }
