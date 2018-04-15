@@ -51,8 +51,6 @@ class Process
 
     public $process_id;
 
-    public $key;
-
     /** @var IM $IM */
     public $IM;
 

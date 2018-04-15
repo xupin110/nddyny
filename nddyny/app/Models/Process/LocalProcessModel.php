@@ -43,6 +43,7 @@ class LocalProcessModel extends Model
             $pid = $info['pid'];
             if ($type == SIGKILL) {
                 get_instance()->stopProcess9($pid);
+                $Process->process_id = $key;
                 $Process->renderGroup(R::success(R::SUCCESS, Process::TASK_ACTION_CLOSE), true, true);
                 continue;
             }
