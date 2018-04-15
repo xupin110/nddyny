@@ -8,6 +8,7 @@ use app\Controllers\nddyny\Common\Process;
 use nddyny\Utils\SshUtils;
 use Server\Asyn\Mysql\MysqlAsynPool;
 use Server\Asyn\Redis\RedisAsynPool;
+use Server\Components\Process\ProcessManager;
 
 class ManageProcess extends ProcessServer
 {
@@ -25,6 +26,7 @@ class ManageProcess extends ProcessServer
         if ($Process->current_task_type == Process::TASK_STATUS_NORMAL) {
             $Process->renderGroup(R::success(null, Process::TASK_ACTION_CREATE), true, true);
         }
+        $this->webdriverKill($Process);
         try {
             switch ($Process->category) {
                 case 'ssh':
@@ -50,7 +52,20 @@ class ManageProcess extends ProcessServer
         if ($Process->category == 'ssh') {
             return get_instance()->stopProcess15($pid);
         }
+        $this->webdriverKill($Process);
         $this->onShutDown();
+    }
+
+    private function webdriverKill(Process $Process)
+    {
+        $pid = ProcessManager::getInstance()->getRpcCallWorker(0)->getWebdriverPid($Process->process_id);
+        if(empty($pid)) {
+            return;
+        }
+        $pid2 = shell_exec("ps -ef|grep 'p\hantomjs --ssl-protocol=any' | awk '{print $2}' | grep $pid");
+        if(trim($pid2) == $pid) {
+            shell_exec("kill {$pid}");
+        }
     }
 
     private function ssh(Process $Process)

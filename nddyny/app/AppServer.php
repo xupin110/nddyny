@@ -21,6 +21,17 @@ abstract class AppServer extends SwooleDistributedServer
     public $process_not_use_table;
     public $process_not_use_lock;
 
+    public $process_webdriver_pid = [];
+    public $process_webdriver_lock;
+
+    public function getWebdriverPid($process_id) {
+        return $this->process_webdriver_pid[$process_id] ?? null;
+    }
+
+    public function setWebdriverPid($process_id, $pid) {
+        $this->process_webdriver_pid[$process_id] = $pid;
+    }
+
     public function onOpenServiceInitialization()
     {
         parent::onOpenServiceInitialization();
@@ -56,6 +67,7 @@ abstract class AppServer extends SwooleDistributedServer
     {
         parent::beforeSwooleStart();
         $this->process_not_use_lock = new \swoole_lock(SWOOLE_MUTEX);
+        $this->process_webdriver_lock = new \swoole_lock(SWOOLE_MUTEX);
         $this->process_table = new \swoole_table(1024);
         $this->process_table->column('name', \swoole_table::TYPE_STRING, 255);
         $this->process_table->column('pid', \swoole_table::TYPE_INT, 8);

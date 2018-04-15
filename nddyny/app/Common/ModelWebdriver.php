@@ -9,6 +9,7 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use app\Controllers\nddyny\Common\Process;
+use Server\Components\Process\ProcessManager;
 
 abstract class ModelWebdriver extends Model
 {
@@ -40,7 +41,23 @@ abstract class ModelWebdriver extends Model
         $Capability->setCapability('phantomjs.page.settings.javascriptEnabled', $enabledJs);
         $Capability->setCapability('phantomjs.cli.args', ['--ssl-protocol=any', '--ignore-ssl-errors=true']);
         $this->process->renderGroup(R::none('打开浏览器'));
-        $this->driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $Capability);
+        $cmd = "ps -ef|grep 'p\hantomjs --ssl-protocol=any' | awk '{print $2}'";
+        get_instance()->process_webdriver_lock->lock();
+        try {
+            $pids1 = explode(PHP_EOL, shell_exec($cmd));
+            $this->driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $Capability);
+            $pids2 = explode(PHP_EOL, shell_exec($cmd));
+        }catch(\Exception $e) {
+            get_instance()->process_webdriver_lock->unlock();
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+        get_instance()->process_webdriver_lock->unlock();
+        $pids = array_diff($pids2, $pids1);
+        if(count($pids) !== 1) {
+            throw new \NddynyException(R::error('同一时间启动了多个进程，请检查pid: ' . implode(', ', $pids)));
+        }
+        $pid = current($pids);
+        ProcessManager::getInstance()->getRpcCallWorker(0)->setWebdriverPid($this->process->process_id, $pid);
     }
 
     protected function baseLogin($login_url, $home_url, $actionLogin, $checkLogin)
