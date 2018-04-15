@@ -98,7 +98,6 @@ class Process
     {
         $run_times = 0;
         while (true) {
-            print_r([$this->key, $this->process_id]);
             if (++$run_times > $max_run_times) {
                 break;
             }

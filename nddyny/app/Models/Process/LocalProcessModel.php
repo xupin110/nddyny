@@ -54,7 +54,7 @@ class LocalProcessModel extends Model
     }
 
     public function input(Process $Process) {
-        $value = param_string($Process->params, 'value', true);
+        $value = param_string($Process->params, 'value', false, ' ');
         $process_id = param_int($Process->params, 'process_id', true);
         $Process->process_id = $process_id;
         $Process->setInput($value);

@@ -77,12 +77,13 @@ function mb_str_pad($str, $len, $mb_factor = 2)
     }
 }
 
-function mb_str_plite($string, $len = 1) {
+function mb_str_plite($string, $len = 1)
+{
     $start = 0;
     $strlen = mb_strlen($string);
     while ($strlen) {
-        $array[] = mb_substr($string,$start,$len,"utf8");
-        $string = mb_substr($string, $len, $strlen,"utf8");
+        $array[] = mb_substr($string, $start, $len, "utf8");
+        $string = mb_substr($string, $len, $strlen, "utf8");
         $strlen = mb_strlen($string);
     }
     return $array;
@@ -99,6 +100,24 @@ function super_array_unique($array)
     }
 
     return $result;
+}
+
+function thumbnail($src, $width, $height, $maxSize = 100)
+{
+    $wRatio = $maxSize / $width;
+    $hRatio = $maxSize / $height;
+    if (($width <= $maxSize) && ($height <= $maxSize)) {
+        return $src;
+    } elseif (($wRatio * $height) < $maxSize) {
+        $tHeight = ceil($wRatio * $height);
+        $tWidth = $maxSize;
+    } else {
+        $tWidth = ceil($hRatio * $width);
+        $tHeight = $maxSize;
+    }
+    $dest = imagecreatetruecolor($tWidth, $tHeight);
+    imagecopyresized($dest, $src, 0, 0, 0, 0, $tWidth, $tHeight, $width, $height);
+    return $dest;
 }
 
 function json_format($json)

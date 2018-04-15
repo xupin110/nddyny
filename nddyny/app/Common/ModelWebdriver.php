@@ -21,6 +21,8 @@ abstract class ModelWebdriver extends Model
 
     protected $cookies;
 
+    protected $input_maxtimes = 120;
+
     abstract protected function getCookieRedisKey();
 
     public function init(Process $Process)
@@ -28,19 +30,8 @@ abstract class ModelWebdriver extends Model
         $this->process = $Process;
     }
 
-    public function destroy()
-    {
-        $this->process = null;
-        $this->cookies = null;
-        if (method_exists($this->driver, 'quit')) {
-            $this->driver->quit();
-        }
-        $this->driver = null;
-    }
-
     protected function phantomjs($enabledImg = true, $enabledJs = true)
     {
-        $this->process->renderGroup(R::none('配置phantomjs浏览器'));
         $Capability = DesiredCapabilities::phantomjs();
         $Capability->setCapability('phantomjs.binary.path', EXTRA_DIR . '/webdriver/phantomjs');
         $Capability->setCapability('phantomjs.page.customHeaders.Accept-Language', 'zh-CN,zh;q=0.8');
@@ -48,9 +39,8 @@ abstract class ModelWebdriver extends Model
         $Capability->setCapability('phantomjs.page.settings.loadImages', $enabledImg);
         $Capability->setCapability('phantomjs.page.settings.javascriptEnabled', $enabledJs);
         $Capability->setCapability('phantomjs.cli.args', ['--ssl-protocol=any', '--ignore-ssl-errors=true']);
-        $this->process->renderGroup(R::none('准备启动打开浏览器'));
+        $this->process->renderGroup(R::none('打开浏览器'));
         $this->driver = RemoteWebDriver::create('http://localhost:4444/wd/hub', $Capability);
-        $this->process->renderGroup(R::none('打开成功'));
     }
 
     protected function baseLogin($login_url, $home_url, $actionLogin, $checkLogin)
@@ -73,6 +63,7 @@ abstract class ModelWebdriver extends Model
         }
         $this->process->renderGroup(R::none('验证登录状态'));
         if (R::noSuccess($Result = $checkLogin())) {
+            $this->process->renderGroup($Result);
             $this->process->renderGroup(R::fail('登录失败'));
             return $Result;
         }
@@ -80,21 +71,18 @@ abstract class ModelWebdriver extends Model
         return R::success();
     }
 
-    protected function takeScreenshot($by = null)
+    protected function takeScreenshot($by = 'body')
     {
-        $this->process->renderGroup(R::none('截图并保存'));
+        $this->process->renderGroup(R::none('截取整个页面'));
         $screenshot = $this->driver->takeScreenshot();
-        $this->process->renderGroup(R::none('成功获取图片'));
-        if (!isset($by)) {
-            return R::success($screenshot);
-        }
         try {
-            $this->process->renderGroup(R::none('调整图片大小'));
+            $this->process->renderGroup(R::none('截取页面指定位置'));
             $this->waitVisibility($by);
             $element = $this->findElement($by);
         } catch (\Exception $e) {
             $this->process->renderGroup(R::fail('定位不到指定区域'));
-            return R::success($screenshot);
+            $this->process->renderGroup(R::none(base64_encode($screenshot), $this->process::CODE_BASE64));
+            return;
         }
         $element_width = $element->getSize()->getWidth();
         $element_height = $element->getSize()->getHeight();
@@ -103,33 +91,45 @@ abstract class ModelWebdriver extends Model
         $src = imagecreatefromstring($screenshot);
         $dest = imagecreatetruecolor($element_width, $element_height);
         imagecopy($dest, $src, 0, 0, $element_src_x, $element_src_y, $element_width, $element_height);
-        $this->process->renderGroup(R::none('成功调整图片大小'));
-        ob_start();
-        imagepng($dest);
-        $img = ob_get_contents();
-        ob_end_clean();
         imagedestroy($src);
-        imagedestroy($dest);
-        $str = base64_encode($img);
-        $this->process->renderGroup(R::none($str, $this->process::CODE_BASE64));
-        return R::success();
+        $src = $dest;
+        $maxSize = 400;
+        while ($maxSize) {
+            $this->process->renderGroup(R::none("调整图片大小, 最大{$maxSize}px"));
+            $dest = thumbnail($src, $element_width, $element_height, $maxSize);
+            ob_start();
+            imagepng($dest, null, 9);
+            $img = ob_get_contents();
+            ob_end_clean();
+            imagedestroy($dest);
+            $str = base64_encode($img);
+            if(strlen(base64_encode($str)) > 80000) {
+                $maxSize -= 25;
+                continue;
+            }
+            imagedestroy($src);
+            $this->process->renderGroup(R::none("请等待图片显示"));
+            $this->process->renderGroup(R::none($str, $this->process::CODE_BASE64));
+            break;
+        }
     }
 
     protected function input()
     {
         $i = 0;
         $this->process->delInput();
-        $this->process->renderGroup(R::none('等待输入', $this->process::CODE_INPUT_SHOW), false);
-        while (empty($input = $this->process->getInput())) {
-            if ($i++ == 60) {
-                return R::fail('长时间未输入，关闭进程');
+        // 等待输入
+        $this->process->renderGroup(R::none(null, $this->process::CODE_INPUT_SHOW), false);
+        while (($input = $this->process->getInput()) === '') {
+            if ($i++ == $this->input_maxtimes) {
+                throw new \NddynyException(R::fail('长时间未输入，关闭进程'));
             }
             $this->process->renderGroup(R::none('.'), false);
             sleep(1);
             continue;
         }
-        $this->process->renderGroup(R::none(PHP_EOL . '得到输入内容: ' . $input, $this->process::CODE_INPUT_HIDE));
-        return R::success();
+        $this->process->renderGroup(R::none(PHP_EOL . '<span style="color: #67C23A">输入内容: ' . $input . '</span>', $this->process::CODE_INPUT_HIDE));
+        return $input;
     }
 
     protected function setCookies()

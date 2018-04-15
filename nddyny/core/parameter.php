@@ -49,7 +49,7 @@ function param_empty($scope, $name, $required = false, $default = null, $code = 
     if (is_string($value)) {
         $value = trim($value);
     }
-    if (empty($value) == false) {
+    if (empty($value) == false || is_numeric($value)) {
         return $value;
     }
     if ($required) {

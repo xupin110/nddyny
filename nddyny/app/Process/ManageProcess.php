@@ -48,10 +48,9 @@ class ManageProcess extends ProcessServer
         }
         $Process->renderGroup($Result, true, true);
         if ($Process->category == 'ssh') {
-            get_instance()->stopProcess15($pid);
-        } else {
-            $this->onShutDown();
+            return get_instance()->stopProcess15($pid);
         }
+        $this->onShutDown();
     }
 
     private function ssh(Process $Process)

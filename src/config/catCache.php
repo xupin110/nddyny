@@ -10,7 +10,7 @@
 /**
  * 是否启动CatCache
  */
-$config['catCache']['enable'] = true;
+$config['catCache']['enable'] = false;
 //自动存盘时间
 $config['catCache']['auto_save_time'] = 1000;
 //落地文件夹

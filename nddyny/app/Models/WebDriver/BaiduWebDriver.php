@@ -25,18 +25,13 @@ class BaiduWebDriver extends ModelWebdriver
 
     private function login()
     {
-        $driver = $this->driver;
-        return $this->baseLogin($this->login_url, $this->home_url, function () use ($driver) {
-            if(R::noSuccess($Result = $this->takeScreenshot('#TANGRAM__PSP_3__qrcode'))) {
-                return $Result;
-            }
+        return $this->baseLogin($this->login_url, $this->home_url, function () {
+            $this->takeScreenshot('#TANGRAM__PSP_3__qrcode');
             $this->process->renderGroup(R::none('请扫码，然后随便输个东西'));
-            if(R::noSuccess($Result = $this->input())) {
-                return $Result;
-            }
+            $this->input();
             return R::success();
-        }, function () use ($driver) {
-            $currentUrl = substr($driver->getCurrentURL(), 0, strlen($this->home_url));
+        }, function () {
+            $currentUrl = substr($this->driver->getCurrentURL(), 0, strlen($this->home_url));
             if ($currentUrl != $this->home_url) {
                 return R::fail("当前地址: $currentUrl, 期望地址: $this->home_url");
             }
@@ -46,6 +41,6 @@ class BaiduWebDriver extends ModelWebdriver
 
     protected function getCookieRedisKey()
     {
-        return 'webdriver.baidu3';
+        return 'webdriver.baidu';
     }
 }
