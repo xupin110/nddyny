@@ -8,6 +8,8 @@ $config['tcp.port'] = '37091';
 // 可自定义创建进程的最大数量
 $config['process.amount'] = 5;
 
+// 主机名
+$config['hostname'] = exec('hostname');
 // 本机IP - 需要和“servers”配置中的其中一个ip的值一样
 // $ip = current(swoole_get_local_ip());
 $ip = '127.0.0.1';

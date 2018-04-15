@@ -36,7 +36,7 @@ abstract class ModelWebdriver extends Model
         $Capability = DesiredCapabilities::phantomjs();
         $Capability->setCapability('phantomjs.binary.path', EXTRA_DIR . '/webdriver/phantomjs');
         $Capability->setCapability('phantomjs.page.customHeaders.Accept-Language', 'zh-CN,zh;q=0.8');
-        $Capability->setCapability('phantomjs.page.settings.userAgent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/59.0.3071.109 Chrome/59.0.3071.109 Safari/537.36');
+        $Capability->setCapability('phantomjs.page.settings.userAgent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/65.0.3325.181 Chrome/65.0.3325.181 Safari/537.36');
         $Capability->setCapability('phantomjs.page.settings.loadImages', $enabledImg);
         $Capability->setCapability('phantomjs.page.settings.javascriptEnabled', $enabledJs);
         $Capability->setCapability('phantomjs.cli.args', ['--ssl-protocol=any', '--ignore-ssl-errors=true']);
@@ -88,7 +88,41 @@ abstract class ModelWebdriver extends Model
         return R::success();
     }
 
-    protected function takeScreenshot($by = 'body')
+    protected function takeScreenshot($by = null)
+    {
+        $imgname = uuid() . '.png';
+        $path = NDDYNY_DIR . '/tmp/' . $imgname;
+        $uri = '/tmp/' . config_get('hostname') . '/' . $imgname;
+        $this->process->renderGroup(R::none('截取整个页面'));
+        $this->driver->takeScreenshot($path);
+        if(!isset($by)) {
+            $this->process->renderGroup(R::none($uri, $this->process::CODE_IMAGE));
+            return;
+        }
+        try {
+            $this->process->renderGroup(R::none('截取页面指定位置'));
+            $this->waitVisibility($by);
+            $element = $this->findElement($by);
+        } catch (\Exception $e) {
+            $this->process->renderGroup(R::fail('定位不到指定区域'));
+            $this->process->renderGroup(R::none($uri, $this->process::CODE_IMAGE));
+            return;
+        }
+        $this->process->renderGroup(R::none('调整图片大小'));
+        $element_width = $element->getSize()->getWidth();
+        $element_height = $element->getSize()->getHeight();
+        $element_src_x = $element->getLocation()->getX();
+        $element_src_y = $element->getLocation()->getY();
+        $src = imagecreatefrompng($path);
+        $dest = imagecreatetruecolor($element_width, $element_height);
+        imagecopy($dest, $src, 0, 0, $element_src_x, $element_src_y, $element_width, $element_height);
+        imagepng($dest, $path);
+        $this->process->renderGroup(R::none("请等待图片显示"));
+        $this->process->renderGroup(R::none($uri, $this->process::CODE_IMAGE));
+    }
+
+    // 发送base64图片，能显示的像素太低
+    protected function takeScreenshot2($by = 'body')
     {
         $this->process->renderGroup(R::none('截取整个页面'));
         $screenshot = $this->driver->takeScreenshot();
@@ -98,7 +132,6 @@ abstract class ModelWebdriver extends Model
             $element = $this->findElement($by);
         } catch (\Exception $e) {
             $this->process->renderGroup(R::fail('定位不到指定区域'));
-            $this->process->renderGroup(R::none(base64_encode($screenshot), $this->process::CODE_BASE64));
             return;
         }
         $element_width = $element->getSize()->getWidth();

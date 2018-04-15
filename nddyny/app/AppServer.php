@@ -40,6 +40,8 @@ abstract class AppServer extends SwooleDistributedServer
          */
         $this->mysql_pool->installDbBuilder();
         $this->loader->model('nddyny\Table\AppTable', $this)->setList();
+        exec("ps -ef|grep 'phantomjs --ssl-protocol=any' | awk '{print $2}' | xargs kill");
+        exec('rm -rf ' . NDDYNY_DIR . '/tmp/*');
     }
 
     public function initAsynPools($workerId)

@@ -13,3 +13,4 @@ src/bin/cache
 nddyny/config/common.php
 nddyny/config/custom.php
 nddyny/config/nginx.conf
+nddyny/tmp/?*.*

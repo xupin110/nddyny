@@ -70,9 +70,22 @@ server {
     listen 37092;
     server_name www.nddyny.com;
 
+    location /tmp/nddyny {
+        proxy_pass http://nddyny.tmp.nddyny.com/;
+    }
+
     location / {
         root /nddyny/apps/nddyny-backend/dist/;
         index index.html;
         try_files $uri /index.html;
+    }
+}
+
+server {
+    listen 80;
+    server_name nddyny.tmp.nddyny.com;
+
+    location / {
+        root /nddyny/apps/nddyny/nddyny/tmp/;
     }
 }

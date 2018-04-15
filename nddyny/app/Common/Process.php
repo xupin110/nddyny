@@ -31,6 +31,8 @@ class Process
 
     const CODE_BASE64 = 'base64';
 
+    const CODE_IMAGE = 'image';
+
     const CODE_INPUT_SHOW = 'input_show';
 
     const CODE_INPUT_HIDE = 'input_hide';

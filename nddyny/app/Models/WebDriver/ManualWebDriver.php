@@ -20,46 +20,55 @@ class ManualWebDriver extends ModelWebdriver
     
     private function whileInput()
     {
+        $s = ' * &nbsp* &nbsp';
         while (true) {
             $prompt = <<<EOF
 -------------------------
 请输入编号
-    0.打开页面
-    1.登录
-    2.查找、输入
-    3.查找、点击
-    4.等待、查找、输入
-    5.等待、查找、点击
-    6.显示图片
-    7.退出本次循环输入
+  1.打开页面
+  2.登录
+  3.查找、输入
+  4.{$s}、点击
+  5.{$s}、按键
+  6.等待、查找、输入
+  7.{$s}、{$s}、点击
+  8.{$s}、{$s}、按键
+  9.显示图片
+  0.退出本次循环输入
 -------------------------
 EOF;
             $this->process->renderGroup(R::none($this->colorBlue($prompt)));
             $type = $this->input();
             try {
                 switch ($type) {
-                    case '0':
+                    case '1':
                         $this->get();
                         break;
-                    case '1':
+                    case '2':
                         $this->login();
                         break;
-                    case '2':
+                    case '3':
                         $this->findInput();
                         break;
-                    case '3':
+                    case '4':
                         $this->findClick();
                         break;
-                    case '4':
-                        $this->waitFindInput();
-                        break;
                     case '5':
-                        $this->waitFindClick();
+                        $this->findPressKey();
                         break;
                     case '6':
-                        $this->image();
+                        $this->waitFindInput();
                         break;
                     case '7':
+                        $this->waitFindClick();
+                        break;
+                    case '8':
+                        $this->waitFindPressKey();
+                        break;
+                    case '9':
+                        $this->image();
+                        break;
+                    case '0':
                         break 2;
                     default:
                         $this->process->renderGroup(R::none($this->colorWarning('无效编号, 请重新输入')));
@@ -81,10 +90,8 @@ EOF;
     {
         $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="#F56C6C">登录页面地址</span>')));
         $login_url = $this->input();
-        $this->driver->get($login_url);
         $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="#F56C6C">登录后</span>页面地址')));
         $home_url = $this->input();
-        $this->driver->get($home_url);
         return $this->baseLogin($login_url, $home_url, function () {
             $this->whileInput();
             return R::success();
@@ -128,6 +135,13 @@ EOF;
         $this->findElement($by)->click();
     }
 
+    private function findPressKey($by2 = null) {
+        $this->findInput($by2);
+        $this->process->renderGroup(R::none($this->colorBlue('请输入按键')));
+        $key = $this->input();
+        $this->driver->getKeyboard()->pressKey($key);
+    }
+
     private function waitFindInput()
     {
         $this->process->renderGroup(R::none($this->colorBlue('请输入等待显示的css定位')));
@@ -142,6 +156,13 @@ EOF;
         $by = $this->input();
         $this->waitVisibility($by);
         $this->findClick($by);
+    }
+
+    private function waitFindPressKey() {
+        $this->waitFindInput();
+        $this->process->renderGroup(R::none($this->colorBlue('请输入按键')));
+        $key = $this->input();
+        $this->driver->getKeyboard()->pressKey($key);
     }
 
     private function image()
