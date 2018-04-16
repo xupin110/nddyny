@@ -26,6 +26,10 @@ class ProcessModel extends Model
             'rpc_request_id' => $this->context['request_id'],
             'path' => ''
         ] + json_decode(json_encode($client_data), true));
-        return R::castResultObject($Result);
+        $Result = R::castResultObject($Result);
+        if(R::noSuccess($Result)) {
+            $Process->renderGroup($Result);
+        }
+        return $Result;
     }
 }
