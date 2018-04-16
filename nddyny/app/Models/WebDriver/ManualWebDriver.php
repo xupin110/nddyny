@@ -92,7 +92,7 @@ EOF;
 
     private function login()
     {
-        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="color:#F56C6C">登录页面地址</span>')));
+        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="color:#F56C6C">登录</span>页面地址')));
         $login_url = $this->input();
         $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="color:#F56C6C">登录后</span>页面地址')));
         $home_url = $this->input();
