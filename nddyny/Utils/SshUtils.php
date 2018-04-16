@@ -29,15 +29,15 @@ class SshUtils
             }
             $command .= $this->echo_end_flag;
 
-            $this->print('开始连接服务器');
+            $this->print('开始连接服务器' . PHP_EOL);
             if (($this->conn = ssh2_connect($host, $port)) == false) {
-                return $this->print('服务器连接失败');
+                return $this->print('服务器连接失败' . PHP_EOL);
             }
-            $this->print('开始验证身份');
+            $this->print('开始验证身份' . PHP_EOL);
             if(empty(trim($password))) {
                 ssh2_auth_pubkey_file($this->conn, $username, '~/.ssh/id_rsa.pub', '~/.ssh/id_rsa');
             } elseif (ssh2_auth_password($this->conn, $username, $password) == false) {
-                return $this->print('登录失败');
+                return $this->print('登录失败' . PHP_EOL);
             }
             $this->shell = ssh2_shell($this->conn, null, null, 850);
             $this->command($command);
