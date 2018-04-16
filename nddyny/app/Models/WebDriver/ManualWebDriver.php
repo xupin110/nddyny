@@ -35,6 +35,7 @@ class ManualWebDriver extends ModelWebdriver
   8.{$s}、{$s}、按键
   9.显示图片
   0.退出本次循环输入
+  -.清空cookie
 -------------------------
 EOF;
             $this->process->renderGroup(R::none($this->colorBlue($prompt)));
@@ -70,6 +71,9 @@ EOF;
                         break;
                     case '0':
                         break 2;
+                    case '-':
+                        $this->delCookie();
+                        break;
                     default:
                         $this->process->renderGroup(R::none($this->colorWarning('无效编号, 请重新输入')));
                 }
@@ -88,9 +92,9 @@ EOF;
 
     private function login()
     {
-        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="#F56C6C">登录页面地址</span>')));
+        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="color:#F56C6C">登录页面地址</span>')));
         $login_url = $this->input();
-        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="#F56C6C">登录后</span>页面地址')));
+        $this->process->renderGroup(R::none($this->colorBlue('请输入<span style="color:#F56C6C">登录后</span>页面地址')));
         $home_url = $this->input();
         return $this->baseLogin($login_url, $home_url, function () {
             $this->whileInput();
@@ -173,6 +177,13 @@ EOF;
         } else {
             $this->takeScreenshot($by);
         }
+    }
+
+    private function delCookie()
+    {
+        $this->redis_pool->getCoroutine()->del($this->getCookieRedisKey());
+        $this->driver->manage()->deleteAllCookies();
+        $this->process->renderGroup(R::none('<span style="color:#F56C6C">成功清空cookie</span>'));
     }
 
     protected function getCookieRedisKey()

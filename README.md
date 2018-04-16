@@ -32,10 +32,16 @@ google authenticator密钥: AAAAARZAANVAAAAA
 写文档的时候最新版本就是 3.1.10
 
 ## 安装
-#### 安装php扩展 ssh2
+#### (可选) 安装php扩展 ssh2
+使用ssh2进程任务时需要安装  
 pecl install ssh2 安装不了  
 去pecl官网下吧 http://pecl.php.net/package/ssh2  
 有时候需要翻墙有时候不需要
+#### (可选) 给服务器安装字体
+使用webdriver时需要安装  
+```
+apt-get install xfonts-wqy
+```
 #### 正式开始
 ```
 # 安装SwooleDistributed和nddyny的依赖

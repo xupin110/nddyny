@@ -35,7 +35,7 @@ class WowWebDriver extends ModelWebdriver
                 // 防502
                 $this->process->renderGroup(R::none($e->getMessage()));
                 $i--;
-                usleep(1000000 * 15);
+                sleep(15);
                 continue;
             }
             try {

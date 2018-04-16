@@ -12,17 +12,6 @@ class TestModel extends Model
     {
         $Process->while($Process->data['params'], function($run_times) use ($Process) {
             $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
-            $Process->renderGroup(R::none('test' . $run_times));
             sleep(1);
         });
         return R::success();
