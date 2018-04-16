@@ -1,5 +1,5 @@
 # nddyny
-使用[SwooleDistributed](http://sd.youwoxing.net/)做的。  
+0. 使用[SwooleDistributed](http://sd.youwoxing.net/)做的。  
 1. 在web页面可以随时开启和关闭进程任务，并实时显示任务产生的内容。  
 2. 很方便就可以使用phpwebdriver。有一个完整的例子。（参见视频介绍）  
 3. 支持集群部署。
