@@ -71,11 +71,9 @@ php src/bin/start_swoole_server.php start
 ## 集群
 #### 下面是SwooleDistributed的consul配置方法，consul配好集群功能就好了
 先下载consul二进制可执行文件，放到项目的src/bin/exec目录
-**以下例子中**  
-A服务器IP: 172.19.170.120  
-B服务器IP: 172.19.199.192  
-第一个consul所在服务器IP: 172.19.199.193  
-第二个consul所在服务器IP: 172.19.199.194
+**以下例子中**   
+第一个consul ip: 172.19.199.193  
+第二个consul ip: 172.19.199.194
 #### 修改配置文件 custom.php
 ```
 $custom['consul.enable'] = true;

@@ -48,15 +48,15 @@ class WowWebDriver extends ModelWebdriver
             if (empty($item = $obj->itemTooltips->itemTooltip) || !isset($item->id)) {
                 if(!$startEmpty) {
                     $startEmpty = true;
-                    $this->process->renderGroup(R::none("空 开始{$i}, "), false);
+                    $this->process->renderGroup(R::none("空 {$i}"), false);
                 } else {
-                    $this->process->renderGroup(R::none("{$i}, "), false);
+                    $this->process->renderGroup(R::none(", {$i}"), false);
                 }
                 continue;
             }
             if($startEmpty) {
                 $startEmpty = false;
-                $this->process->renderGroup(R::none("空 结束"));
+                $this->process->renderGroup(R::none(""));
             }
             $item = json_decode(json_encode($item), true);
             $content = "{$i} <span style='color: #f00'>{$item['name']}</span>";
