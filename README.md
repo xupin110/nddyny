@@ -1,8 +1,14 @@
 # nddyny
-#### 使用[SwooleDistributed](http://sd.youwoxing.net/)做的。  
-支持集群，可以随时开启和关闭进程任务，连接其中一个节点便可在任意节点创建进程任务，并把任务产生的内容实时输出到web端。
+使用[SwooleDistributed](http://sd.youwoxing.net/)做的。  
+1. 在web页面可以随时开启和关闭进程任务，并实时显示任务产生的内容。  
+2. 很方便就可以使用phpwebdriver。有一个完整的例子。（参见视频介绍）  
+3. 支持集群部署。
+#### 两种执行任务的方式
+1. 使用ssh2登录指定服务器，并在前端显示操作产生的内容。
+2. 执行项目中的方法，自由控制输出的内容到前端。
+
 #### 项目的视频介绍地址
-[bilibili](https://www.bilibili.com/video/av22011374/) 1080P。
+[bilibili](https://www.bilibili.com/video/av22196681/) 1080P。
 
 #### 测试站点 www.nddyny.com
 使用了三台服务器，两台放项目，一台放consul
@@ -11,20 +17,17 @@
 帐号: account  
 google authenticator密钥: AAAAARZAANVAAAAA  
 **2. 不验证身份登录**  
-帐号: testtt  
-密码: 随便输6位以上  
+http://www.nddyny.com/login?f
 #### nddyny算是外挂在SwooleDistributed中的，如果你已经用他写了自己的项目，只需要修改的4处，就可以使用nddyny  
 全局搜索nddyny项目的内容“ **TODO nddyny**”，按搜索到的内容修改自己的项目并把nddyny目录放到根目录就好了。
 
-#### 两种执行任务的方式
-1. 使用ssh2登录指定服务器，后续操作产生的内容实时输出到web端。
-2. 指定执行项目中的方法，在该方法中可以自由控制输出的内容。
-
 #### 可以干嘛呢？
-1.  ssh2方式可以配合expect命令实现一键shell操作，比如更新代码，删除指定的mysql/redis内容。
-2.  用另一种方式运行常驻任务的话，可以看到任务的实时输出。  
-我是主要是采集东西的时候用的，看采集到的内容。nddyny/app/Models/WebDriver 目录下有我使用phpwebdriver写的例子。
-### [点击去看Web端项目 nddyny-backend](http://github.com/nddyny/nddyny-backend) 
+视频里有例子介绍，请点击进入 [视频介绍](https://www.bilibili.com/video/av22196681/) 。
+
+#### 其它
+[nddyny-backend ● Web端项目](http://github.com/nddyny/nddyny-backend)   
+[nddyny-extra ● webdriver用到的程序](https://github.com/nddyny/nddyny-extra)   
+[视频介绍](https://www.bilibili.com/video/av22196681/)
 <br>
 
 ## 准备工作
@@ -33,13 +36,14 @@ google authenticator密钥: AAAAARZAANVAAAAA
 
 ## 安装
 #### (可选) 安装php扩展 ssh2
-使用ssh2进程任务时需要安装  
+**使用ssh2进程任务时需要安装**  
 pecl install ssh2 安装不了  
 去pecl官网下吧 http://pecl.php.net/package/ssh2  
 有时候需要翻墙有时候不需要
 #### (可选) 给服务器安装字体
-使用webdriver时需要安装  
+**使用webdriver时需要安装**  
 ```
+# 其它中文字体也可以
 apt-get install xfonts-wqy
 ```
 #### 正式开始
