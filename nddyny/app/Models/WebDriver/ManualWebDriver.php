@@ -137,9 +137,9 @@ EOF;
 
     private function findPressKey($by2 = null) {
         $this->findInput($by2);
-        $this->process->renderGroup(R::none($this->colorBlue('请输入按键')));
+        $this->process->renderGroup(R::none($this->colorBlue('请输入大写的按键名')));
         $key = $this->input();
-        $this->driver->getKeyboard()->pressKey($key);
+        $this->driver->getKeyboard()->pressKey(constant("\Facebook\WebDriver\WebDriverKeys::$key"));
     }
 
     private function waitFindInput()
@@ -160,9 +160,9 @@ EOF;
 
     private function waitFindPressKey() {
         $this->waitFindInput();
-        $this->process->renderGroup(R::none($this->colorBlue('请输入按键')));
+        $this->process->renderGroup(R::none($this->colorBlue('请输入大写的按键名')));
         $key = $this->input();
-        $this->driver->getKeyboard()->pressKey($key);
+        $this->driver->getKeyboard()->pressKey(constant("\Facebook\WebDriver\WebDriverKeys::$key"));
     }
 
     private function image()
