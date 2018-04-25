@@ -10,14 +10,6 @@
 #### 项目的视频介绍地址
 [bilibili](https://www.bilibili.com/video/av22196681/) 1080P。
 
-#### 测试站点 www.nddyny.com
-使用了三台服务器，两台放项目，一台放consul
-#### 登录方式有两种  
-**1. 使用动态码登录**  
-帐号: account  
-google authenticator密钥: AAAAARZAANVAAAAA  
-**2. 不验证身份登录**  
-http://www.nddyny.com/login?f
 #### nddyny算是外挂在SwooleDistributed中的，如果你已经用他写了自己的项目，只需要修改的4处，就可以使用nddyny  
 全局搜索nddyny项目的内容“ **TODO nddyny**”，按搜索到的内容修改自己的项目并把nddyny目录放到根目录就好了。
 
